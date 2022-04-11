@@ -1,6 +1,8 @@
 package brainfuck
 
 import (
+	"bufio"
+	"os"
 	"strings"
 )
 
@@ -30,7 +32,6 @@ func NewInterPreter() *interPreter {
 			interPreter.commands[string(char)] = f
 		}
 	}
-
 	interPreter.initializeCommands()
 	return interPreter
 }
@@ -39,4 +40,25 @@ func (i *interPreter) Execute(code string) {
 	input := strings.Split(code, "")
 	i.compile(input)
 	i.run()
+	i.clear()
+}
+func (i *interPreter) clear() {
+	i.paren = 0
+	i.memory = make(map[int]uint8)
+	i.pointer = 0
+	i.processes = []processType{}
+}
+
+func (i *interPreter) ExecuteFromFile(path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	var input string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		input += scanner.Text()
+	}
+	i.Execute(input)
 }
